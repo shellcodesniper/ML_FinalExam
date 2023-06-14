@@ -67,7 +67,7 @@ class _Loaders:
     # TODO : Nan Value 채우기
 
     csv_buf = StringIO()
-    md.to_csv(csv_buf, sep=",", index=True, mode="wt", encoding="UTF-8")
+    md.to_csv(csv_buf, sep=",", index=False, mode="wt", encoding="UTF-8")
     csv_buf.seek(0)
     md = pd.read_csv(csv_buf)
     pickle.dump(md, open('datas/merged.pkl', 'wb'))
@@ -90,17 +90,23 @@ class _Loaders:
 
     x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
     y_train = pre_processed[['sales']] # TYPE : 2-D Required.
+    print (x_train.head())
 
-    x_train = x_train.to_numpy()
-    y_train = y_train.to_numpy()
+    # x_train = x_train.to_numpy()
+    # y_train = y_train.to_numpy()
+
 
     # NOTE : Scaling
 
     x_train = scaler.fit_transform(x_train)
     y_train = scaler.fit_transform(y_train)
 
+    print (x_train.shape, y_train.shape)
 
-    dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    y_train = y_train.reshape((-1,1))
+
+
+    dataset = tf.data.Dataset.from_tensors((x_train, y_train))
 
     return dataset
 
