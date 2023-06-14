@@ -42,7 +42,7 @@ class _Loaders:
     print(f"NULL(B):\n{md.isnull().sum()}")
 
     # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
-    md['dcoilwtico'] = md['dcoilwtico'].transform(lambda x: x.rolling(3).mean() if x.isnull() else x)
+    md['dcoilwtico'] = md['dcoilwtico'].fillna(lambda x: x.rolling(3).mean())
     # md['dcoilwtico'] = md['dcoilwtico'].fillna(method='bfill') # NOTE : 그 외값은, 앞선 가격으로 채워버리기.
 
 
