@@ -16,7 +16,7 @@ from kuuwange.loaders import Loader
 
 es = tf.keras.callbacks.EarlyStopping(
   monitor='loss', verbose=1, mode='auto',
-  baseline=None, restore_best_weights=False, patience=3
+  baseline=None, restore_best_weights=True, patience=12
 )
 mc = tf.keras.callbacks.ModelCheckpoint(
   filepath='datas/predict.keras',
@@ -24,8 +24,8 @@ mc = tf.keras.callbacks.ModelCheckpoint(
 )
 
 rlr = tf.keras.callbacks.ReduceLROnPlateau(
-  monitor='loss', factor=0.1, patience=2, verbose=2,
-  mode='auto', min_delta=0.1, cooldown=0, min_lr=0.000e-9
+  monitor='loss', factor=0.1, patience=10, verbose=2,
+  mode='auto'
 )
 csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
 

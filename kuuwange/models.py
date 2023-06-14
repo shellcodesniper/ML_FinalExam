@@ -13,10 +13,16 @@ class TSBaseModel(keras.Model):
   def __init__(self, **kwargs):
     super(TSBaseModel, self).__init__(**kwargs)
     self.input_layer = layers.InputLayer(input_shape=(13,))
+    self.lstms = [
+      layers.LSTM(64, return_sequences=True),
+      layers.LSTM(64, return_sequences=True),
+    ],
     self.dense_1 = layers.Dense(64, activation='relu')
     self.dense_2 = layers.Dense(10)
 
   def call(self, inputs):
     x = self.input_layer(inputs)
+    x = self.lstms[0](x)
+    x = self.lstms[1](x)
     x = self.dense_1(inputs)
     return self.dense_2(x)
