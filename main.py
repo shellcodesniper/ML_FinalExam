@@ -1,5 +1,5 @@
 import tensorflow as tf
-# tf.config.set_soft_device_placement(True)
+tf.config.set_soft_device_placement(True)
 # tf.debugging.set_log_device_placement(True)
 # SET GPU
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -19,8 +19,7 @@ es = tf.keras.callbacks.EarlyStopping(
   baseline=None, restore_best_weights=True, patience=12
 )
 mc = tf.keras.callbacks.ModelCheckpoint(
-  filepath='datas/predict.keras',
-  save_best_only=True
+  filepath='datas/ckp.keras',  save_best_only=True
 )
 
 rlr = tf.keras.callbacks.ReduceLROnPlateau(
@@ -50,9 +49,9 @@ def main():
   model.summary()
 
 
-  for _i in range(int(3054348 / 1000)):
-    shuffled = train_dataset.shuffle(1000)
-    history = model.fit(shuffled, batch_size=10, epochs=50, verbose="auto", shuffle=True, callbacks=[es, mc, rlr, csv_logger])
+  for _i in range(int(3054348 / 250)):
+    shuffled = train_dataset.shuffle(250)
+    history = model.fit(shuffled, batch_size=5, epochs=50, verbose="auto", shuffle=False, callbacks=[es, mc, rlr, csv_logger])
 
     # show history
     # print (history.history.keys())
@@ -61,8 +60,10 @@ def main():
     # plt.plot(history.history['val_loss'])
 
     # TODO : Evaluation 
-    result = model.evaluate(shuffled, batch_size=10, verbose='auto', )
+    result = model.evaluate(shuffled, batch_size=5, verbose='auto', )
     print (result)
+
+    predict = model.predict(shuffled, batch_size=5, verbose='auto', )
     # TODO : Save Model
   # NOTE : Show History
 
