@@ -15,8 +15,8 @@ class TSBaseModel(keras.Model):
     self.input_layer = layers.InputLayer(input_shape=(None,13))
     self.lstm_1 = layers.LSTM(26, return_sequences=True)
     self.lstm_2 = layers.LSTM(13)
-    self.dense_1 = layers.Dense(64, activation='relu')
-    self.dense_2 = layers.Dense(32, activation='leaky_relu')
+    self.dense_1 = layers.Dense(32, activation='relu')
+    self.dense_2 = layers.Dense(16, activation='leaky_relu')
     self.outputL = layers.Dense(1)
 
   def call(self, inputs):
