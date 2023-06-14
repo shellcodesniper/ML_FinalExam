@@ -42,11 +42,13 @@ class _Loaders:
     print(f"NULL(B):\n{md.isnull().sum()}")
 
     # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
-    md['dcoilwtico'] = oil['dcoilwtico'].fillna(method='ffill').fillna(method='bfill')
+    md['dcoilwtico'] = md['dcoilwtico'].transform(lambda x: x.rolling(3).mean() if x.isnull() else x)
+    # md['dcoilwtico'] = md['dcoilwtico'].fillna(method='bfill') # NOTE : 그 외값은, 앞선 가격으로 채워버리기.
 
 
     # TODO : transactions -> 거래량 추론
     md['transactions'] = md.groupby(['store_nbr','holiday_type'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 같은 상점의 holiday_type 이 같은경우를 평균을 내서 채움.
+    md['transactions'] = md.groupby(['store_nbr'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 그 외값은, 같은 상점의 평균으로 채움.
 
     print(f"NULL(A):\n{md.isnull().sum()}")
 
