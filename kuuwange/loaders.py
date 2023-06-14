@@ -2,6 +2,9 @@ from io import StringIO
 import os, glob, tqdm, pickle
 import numpy as np, pandas as pd
 import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import KNNImputer
+import matplotlib.pyplot as plt
 BASE_PATH = 'datas/'
 
 # TODO : Nan Value 채우고(해야함?), 학습 가능하도록 string -> numeric 변환.
@@ -30,6 +33,13 @@ class _Loaders:
     transactions = pd.read_csv('datas/transactions.csv')
     train = pd.read_csv('datas/train.csv')
 
+    # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
+    X = oil['dcoilwtico'].values.reshape((203,6))
+    imputer = KNNImputer(n_neighbors=5, weights = 'distance')
+    z = imputer.fit_transform(X)
+    z = z.reshape((1218,1))
+    oil['dcoilwtico'] = z
+
     md = pd.merge(train, oil, how = 'left', on='date')
     md = pd.merge(md, holidays, how = 'left',on = 'date')
     md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
@@ -46,10 +56,7 @@ class _Loaders:
 
     print(f"NULL(B):\n{md.isnull().sum()}")
 
-    # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
-    md['dcoilwtico'] = md['dcoilwtico'].fillna(lambda x: x.rolling(3).mean())
-    # md['dcoilwtico'] = md['dcoilwtico'].fillna(method='bfill') # NOTE : 그 외값은, 앞선 가격으로 채워버리기.
-
+    md['dcoilwtico']= md['dcoilwtico'].fillna(method='bfill')
 
     # TODO : transactions -> 거래량 추론
     md['transactions'] = md.groupby(['store_nbr','holiday_type'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 같은 상점의 holiday_type 이 같은경우를 평균을 내서 채움.
@@ -70,12 +77,30 @@ class _Loaders:
   def get_trainset(self):
     pre_processed = self.get_merged()
 
-    pre_processed['date'] = pre_processed['date'].apply(lambda x : x.replace('-','')).astype(int) # NOTE : 날짜를 숫자로 변환
+
+    pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
+    # pre_processed['dcoilwtico'] = pre_processed['dcoilwtico'].str.replace(',', '').astype(float)
+
+
+    scaler = StandardScaler(
+      with_std=True,
+      with_mean=True,
+      copy=True
+    )
 
     x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
-    y_train = pre_processed['sales']
+    y_train = pre_processed[['sales']] # TYPE : 2-D Required.
 
-    dataset = tf.data.Dataset.from_tensor_slices((x_train.values, y_train.values))
+    x_train = x_train.to_numpy()
+    y_train = y_train.to_numpy()
+
+    # NOTE : Scaling
+
+    x_train = scaler.fit_transform(x_train)
+    y_train = scaler.fit_transform(y_train)
+
+
+    dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 
     return dataset
 
