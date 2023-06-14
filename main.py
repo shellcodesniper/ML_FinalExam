@@ -41,7 +41,7 @@ def main():
 
   model.compile(
     optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
-    loss=tf.keras.losses.MeanSquaredLogarithmicError(),
+    loss=tf.keras.losses.MeanSquaredError(),
     metrics=['mse', 'mae'],
   )
 
