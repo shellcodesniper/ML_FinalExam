@@ -14,6 +14,23 @@ import kuuwange.models as Model
 import kuuwange as MY
 from kuuwange.loaders import Loader
 
+es = tf.keras.callbacks.EarlyStopping(
+  monitor='loss', verbose=1, mode='auto',
+  baseline=None, restore_best_weights=False, patience=3
+)
+mc = tf.keras.callbacks.ModelCheckpoint(
+  filepath='datas/predict.keras',
+  save_best_only=True
+)
+
+rlr = tf.keras.callbacks.ReduceLROnPlateau(
+  monitor='loss', factor=0.1, patience=2, verbose=2,
+  mode='auto', min_delta=0.0001, cooldown=0, min_lr=0
+)
+csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
+
+# NOTE : 기존에 사용하던, Callbacks
+
 
 def main():
 
@@ -23,24 +40,23 @@ def main():
   model = Model.TSBaseModel()
 
   model.compile(
-    optimizer='adam',
-    loss='mse',
-    metrics=['mae', 'mse']
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
+    loss=tf.keras.losses.MeanSquaredLogarithmicError(),
+    metrics=['mse', 'mae'],
   )
-
-  # dataset_to_numpy = list(train_dataset.as_numpy_iterator())
-  # shape = tf.shape(dataset_to_numpy)
-  # print(shape)
 
   model.build(input_shape=(None, 13))
 
   model.summary()
 
-  shuffled = train_dataset.shuffle(1000)
-  for (batch, (x, y)) in enumerate(shuffled.take(10)):
-    print (batch)
-    print(x.shape, y.shape)
-    model.fit(x, y, epochs=10, batch_size=10)
+
+  for _i in range(int(3054348 / 1000)):
+    shuffled = train_dataset.shuffle(1000)
+    history = model.fit(shuffled, batch_size=10, epochs=50, verbose="auto", shuffle=True, callbacks=[es, mc, rlr, csv_logger])
+
+  # NOTE : Show History
+
+
 
 
 

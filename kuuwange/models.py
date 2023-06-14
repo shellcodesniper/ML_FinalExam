@@ -9,23 +9,14 @@ if gpus:
 from tensorflow import keras
 import tensorflow.keras.layers as layers
 
-
 class TSBaseModel(keras.Model):
-  def __init__(self):
-    super().__init__()
-    self.dense1 = layers.Dense(128, activation = 'relu')
-    self.dense2 = layers.Dense(64, activation = 'relu')
-    self.dense3 = layers.Dense(32, activation = 'relu')
-    self.dense4 = layers.Dense(1, activation = 'relu')
+  def __init__(self, **kwargs):
+    super(TSBaseModel, self).__init__(**kwargs)
+    self.input_layer = layers.InputLayer(input_shape=(13,))
+    self.dense_1 = layers.Dense(64, activation='relu')
+    self.dense_2 = layers.Dense(10)
 
-
-
-  def call(self, inputs, training = False):
-    x = self.dense1(inputs)
-    x = self.dense2(x)
-    if training:
-      x = layers.Dropout(0.2)(x)
-    x = self.dense3(x)
-    x = self.dense4(x)
-    return layers.Dense(1, activation = 'relu')(x)
-
+  def call(self, inputs):
+    x = self.input_layer(inputs)
+    x = self.dense_1(inputs)
+    return self.dense_2(x)
