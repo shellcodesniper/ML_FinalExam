@@ -2,19 +2,14 @@ import os, glob, tqdm, pickle
 import numpy as np, pandas as pd
 BASE_PATH = 'datas/'
 
-def str_to_int(holiday):
-  if holiday == 'None':
-    return 0
-  elif holiday == 'Holiday':
-    return 1
-  elif holiday == 'Transfer':
-    return 2
-  elif holiday == 'Additional':
-    return 3
-  elif holiday == 'Bridge':
-    return 4
-  else:
-    return 5
+# TODO : Nan Value 채우고(해야함?), 학습 가능하도록 string -> numeric 변환.
+def replace_string(datas):
+  unique_dict = sorted(datas.dropna().unique())
+  unique_dict = { unique_dict[i] : i for i in range(len(unique_dict))}
+  # NOTE : Fill Nan with -1!
+  unique_dict['Nan'] = -1
+  datas = datas.fillna('Nan').apply(lambda x : unique_dict[x])
+  return datas
 
 class _Loaders:
   def __init__(self):
@@ -36,12 +31,17 @@ class _Loaders:
     md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
     md.rename(columns={'type_x':'holiday_type', 'type_y':'store_type'}, inplace = True)
 
-    # TODO : string to enum or int
-    md['holiday_type'] = md['holiday_type'].fillna('None')
-    md['holiday_type'] = md['holiday_type'].apply(str_to_int)
+    # TODO : String ( object ) -> Numeric 으로 변환
+    for col in md.columns:
+      if col in  ['id', 'date']:
+        continue
 
-    print(md.head())
+      if md[col].dtype == 'object':
+        md[col] = replace_string(md[col])
 
+    print(f"NULL: {md.isnull().sum()}")
+
+    # TODO : Nan Value 채우기
 
     return md 
 
