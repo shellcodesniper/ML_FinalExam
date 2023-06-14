@@ -25,7 +25,7 @@ mc = tf.keras.callbacks.ModelCheckpoint(
 
 rlr = tf.keras.callbacks.ReduceLROnPlateau(
   monitor='loss', factor=0.1, patience=2, verbose=2,
-  mode='auto', min_delta=0.0001, cooldown=0, min_lr=0
+  mode='auto', min_delta=0.1, cooldown=0, min_lr=0.000e-9
 )
 csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
 
@@ -54,6 +54,16 @@ def main():
     shuffled = train_dataset.shuffle(1000)
     history = model.fit(shuffled, batch_size=10, epochs=50, verbose="auto", shuffle=True, callbacks=[es, mc, rlr, csv_logger])
 
+    # show history
+    # print (history.history.keys())
+    # "Loss"
+    # plt.plot(history.history['loss'])
+    # plt.plot(history.history['val_loss'])
+
+    # TODO : Evaluation 
+    result = model.evaluate(shuffled, batch_size=10, verbose='auto', )
+    print (result)
+    # TODO : Save Model
   # NOTE : Show History
 
 
