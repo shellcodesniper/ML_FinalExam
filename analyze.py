@@ -60,7 +60,7 @@ cfig.update_layout(height=800, width=1920, title_text="Total Sales vs Oil Price 
 
 # NOTE : Building Datas
 
-md = Loader.get_merged(True) # TYPE : Merged Data
+md = Loader.get_merged() # TYPE : Merged Data
 
 md = md.groupby(['date'])
 print (md.head())

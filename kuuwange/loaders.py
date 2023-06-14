@@ -118,24 +118,24 @@ class _Loaders:
   def get_holidays(self):
     return self.holidays
 
-  def get_merged(self, train = True):
-    base = self.get_stores().reset_index().rename(columns={'type': 'store_type', 'cluster': 'store_cluster'})
+  def get_merged(self):
+    base = self.get_train().rename(columns={'id': 'class_id'}).reset_index().set_index('store_nbr')
+    print (base.shape[0])
     
-    if train:
-      data = self.get_train().rename(columns={'id': 'class_id'}).reset_index()
-      print (data.dtypes)
+    data = self.get_stores().reset_index().rename(columns={'type': 'store_type', 'cluster': 'store_cluster'})
+    base = base.reset_index().merge(data, on='store_nbr', how='left')
 
-      train_cols = ["class_id", "family", "sales", "onpromotion"]
-      for c in train_cols:
-        base[c] = [None for i in range(0, base.shape[0])]
+    data = self.get_oil().reset_index()
+    data['dcoilwtico'] = data['dcoilwtico'].fillna(method='bfill')
+    base = base.reset_index().merge(data, on='date', how='left')
 
-      for i in range(0, data.shape[0]):
-        target_date = data.iloc[i].date
-        for c in train_cols:
-          item = data.iloc[i][c]
-          base.loc[(base.store_nbr == data.iloc[i].store_nbr) & (base.family == data.iloc[i].family), c] = item
+    data = self.get_transactions().reset_index()
+    base = base.reset_index().merge(data, on=['store_nbr', 'date'], how='left', suffixes=('_ts', '_ts')).set_index(['store_nbr', 'family', 'date']).sort_index()
 
-          
+
+    return base
+
+
 
     # merged = self.get_stores().reset_index().rename(columns={'type': 'store_type', 'cluster': 'store_cluster'})
     #
