@@ -6,7 +6,8 @@ from kuuwange.loaders import Loader
 
 def main():
 
-  merged_data = Loader.get_merged()
+  dataset = Loader.get_trainset()
+
 
 
 

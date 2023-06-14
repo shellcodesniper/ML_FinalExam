@@ -1,5 +1,6 @@
 import os, glob, tqdm, pickle
 import numpy as np, pandas as pd
+import tensorflow as tf
 BASE_PATH = 'datas/'
 
 # TODO : Nan Value 채우고(해야함?), 학습 가능하도록 string -> numeric 변환.
@@ -9,7 +10,7 @@ def replace_string(datas):
   # NOTE : Fill Nan with -1!
   unique_dict['Nan'] = -1
   datas = datas.fillna('Nan').apply(lambda x : unique_dict[x])
-  return datas
+  return datas.copy()
 
 class _Loaders:
   def __init__(self):
@@ -19,6 +20,9 @@ class _Loaders:
     return self.test
 
   def get_merged(self):
+    if os.path.exists('datas/merged.pkl'):
+      return pickle.load(open('datas/merged.pkl', 'rb'))
+
     oil = pd.read_csv('datas/oil.csv')
     holidays = pd.read_csv('datas/holidays_events.csv')
     stores = pd.read_csv('datas/stores.csv')
@@ -54,7 +58,23 @@ class _Loaders:
 
     # TODO : Nan Value 채우기
 
+    csv_buf = md.to_csv()
+    md = pd.read_csv(csv_buf, index_col=0)
+    pickle.dump(md, open('datas/merged.pkl', 'wb'))
+
     return md 
+
+  def get_trainset(self):
+    pre_processed = self.get_merged()
+
+    pre_processed['date'] = pre_processed['data'].apply(lambda x : x.split('-').join('')).astype(int) # NOTE : 날짜를 숫자로 변환
+
+    x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
+    y_train = pre_processed['sales']
+
+    dataset = tf.data.Dataset.from_tensor_slices((x_train.values, y_train.values))
+
+    return dataset
 
 
 
