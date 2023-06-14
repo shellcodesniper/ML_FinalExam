@@ -3,7 +3,7 @@ from tensorflow import keras
 import kuuwange as MY
 from kuuwange.loaders import Loader
 
-from kuwange.models import ShopModel
+import kuuwange.models as Model
 
 
 def main():
@@ -12,16 +12,25 @@ def main():
 
   shop_by_shop = merged_data.groupby('store_nbr')
 
-  date_by_date = merged_data.groupby('date')
+  # date_by_date = merged_data.groupby('date')
 
   shop_names = shop_by_shop.groups.keys()
 
-  dates = date_by_date.groups.keys()
+  # dates = date_by_date.groups.keys()
 
-  print (shop_names)
-  print (dates)
+  # NOTE : Want to Predict 'sales' for each shop
 
-  shopModel = MY.ShopModel(shop_names)
+  # print (shop_names)
+  # print (dates)
+
+
+  DATASET_X = []
+  DATASET_Y = []
+
+  # NOTE : Want to Predict 'sales' for each shop
+  # print (shop_data['sales'].values)
+
+
 
 
 if __name__ == "__main__":
