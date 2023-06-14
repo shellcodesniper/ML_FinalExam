@@ -39,7 +39,16 @@ class _Loaders:
       if md[col].dtype == 'object':
         md[col] = replace_string(md[col])
 
-    print(f"NULL: {md.isnull().sum()}")
+    print(f"NULL(B):\n{md.isnull().sum()}")
+
+    # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
+    md['dcoilwtico'] = oil['dcoilwtico'].fillna(method='ffill').fillna(method='bfill')
+
+
+    # TODO : transactions -> 거래량 추론
+    md['transactions'] = md.groupby(['store_nbr','holiday_type'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 같은 상점의 holiday_type 이 같은경우를 평균을 내서 채움.
+
+    print(f"NULL(A):\n{md.isnull().sum()}")
 
     # TODO : Nan Value 채우기
 
