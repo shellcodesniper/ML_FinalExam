@@ -1,3 +1,4 @@
+from io import StringIO
 import os, glob, tqdm, pickle
 import numpy as np, pandas as pd
 import tensorflow as tf
@@ -58,8 +59,10 @@ class _Loaders:
 
     # TODO : Nan Value 채우기
 
-    csv_buf = md.to_csv()
-    md = pd.read_csv(csv_buf, index_col=0)
+    csv_buf = StringIO()
+    md.to_csv(csv_buf, sep=",", index=True, mode="wt", encoding="UTF-8")
+    csv_buf.seek(0)
+    md = pd.read_csv(csv_buf)
     pickle.dump(md, open('datas/merged.pkl', 'wb'))
 
     return md 
@@ -67,7 +70,7 @@ class _Loaders:
   def get_trainset(self):
     pre_processed = self.get_merged()
 
-    pre_processed['date'] = pre_processed['data'].apply(lambda x : x.split('-').join('')).astype(int) # NOTE : 날짜를 숫자로 변환
+    pre_processed['date'] = pre_processed['date'].apply(lambda x : x.replace('-','')).astype(int) # NOTE : 날짜를 숫자로 변환
 
     x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
     y_train = pre_processed['sales']
