@@ -8,6 +8,18 @@ import matplotlib.pyplot as plt
 import tensorflow_decision_forests as tfdf
 BASE_PATH = 'datas/'
 
+X_SCALER = StandardScaler(
+    with_std=True,
+    with_mean=True,
+)
+
+Y_SCALER = StandardScaler(
+  with_std=True,
+  with_mean=True,
+)
+SCALER_FITTED = False
+
+
 # TODO : Nan Value 채우고(해야함?), 학습 가능하도록 string -> numeric 변환.
 def replace_string(datas):
   unique_dict = sorted(datas.dropna().unique())
@@ -19,17 +31,13 @@ def replace_string(datas):
 
 class Loaders:
   def __init__(self, IS_TRAIN=True):
+    global X_SCALER, Y_SCALER
     print (f'[Loader] : {"TRAIN" if IS_TRAIN else "TEST"}')
     self.base = pd.read_csv(os.path.join(BASE_PATH, 'test.csv')) if not IS_TRAIN else pd.read_csv(os.path.join(BASE_PATH, 'train.csv'))
     self.merged_path = os.path.join(BASE_PATH, 'merged.pkl') if not IS_TRAIN else os.path.join(BASE_PATH, 'merged_train.pkl')
     self.is_train = IS_TRAIN
-
-    self.scaler = StandardScaler(
-      with_std=True,
-      copy=True
-    )
-  def get_scaler(self):
-    return self.scaler
+    self.x_scaler = X_SCALER
+    self.y_scaler = Y_SCALER
 
   def get_merged(self):
     if os.path.exists(self.merged_path):
@@ -100,6 +108,7 @@ class Loaders:
     return md 
 
   def as_raw_set(self):
+    global SCALER_FITTED
     pre_processed = self.get_merged()
     print(f"[결측치({'TRAIN' if self.is_train else 'TEST'})]")
     print(pre_processed.isnull().sum())
@@ -116,14 +125,21 @@ class Loaders:
       x_train = pre_processed.copy()
       y_train = pd.DataFrame(np.zeros((len(x_train), 1)))
 
-    # NOTE : Scaling
-    # x_train = self.scaler.fit_transform(x_train)
-    x_train = x_train.to_numpy()
-    y_train = y_train.to_numpy()
-
     print ("============ X, Y ===============")
     print ("X[0]:", x_train[0], x_train.shape,"\nY[0]:", y_train[0], y_train.shape)
     print ("===========================")
+
+    # NOTE : Scaling
+    # x_train = self.scaler.fit_transform(x_train)
+    if (not SCALER_FITTED):
+      self.x_scaler.fit(x_train)
+      self.y_scaler.fit(y_train.reshape(-1, 1))
+      SCALER_FITTED = True
+
+    x_train = self.x_scaler.transform(x_train)
+    y_train = self.y_scaler.transform(y_train.reshape(-1, 1))
+    y_train = np.ravel(y_train,  order = 'C')
+
 
     return (x_train, y_train)
 

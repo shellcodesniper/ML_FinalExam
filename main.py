@@ -1,6 +1,7 @@
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import warnings
+import pandas
  
 warnings.filterwarnings(action='ignore')
 tf.config.set_soft_device_placement(False)
@@ -24,54 +25,46 @@ import numpy as np
 IS_MAC_OS = os.name == 'posix' and platform.system() == 'Darwin'
 
 def main():
+  DataLoader = Loaders(True)
 
+  # NOTE : DATA PREPARE
+  x_scaler = DataLoader.x_scaler
+  y_scaler = DataLoader.y_scaler
+
+
+
+  # NOTE : Train Data Load
+  (x_test, y_test) = DataLoader.get_validation_set() # TYPE : Train Dataset Generator
+  (x_train, y_train) = DataLoader.as_raw_set()
+  (predict_x, _)= Loaders(False).as_raw_set()
+
+
+
+  # NOTE : Prepare Models
   tree_seed = 9932 # NOTE : 같은 결과를 얻기 위해
   model_GBT = Model.gradientBoostingModel(tree_seed)
-
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
-  predict_loader = Loaders(False)
-
-  (predict_x, _)= predict_loader.as_raw_set()
-  (x_test, y_test) = Loaders(True).get_validation_set() # TYPE : Train Dataset Generator
 
 
-  # NOTE : Train All Data (Epoch 1)
-  (x_train, y_train) = Loaders(True).as_raw_set()
-  y_train = np.ravel(y_train,  order = 'C')
-  x_scaler = StandardScaler(
-    with_std=True,
-  )
-  x_scaler.fit(x_train)
 
-  y_scaler = StandardScaler(
-    with_std=True,
-  )
-  y_scaler.fit(y_train.reshape(-1, 1))
 
+
+
+  # NOTE : Train All Load Weight
   if IS_MAC_OS:
-    t_x = x_train
-    t_y = y_train
-    x_train = x_train[:10]
-    y_train = y_train[:10]
-    model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
-
     if os.path.exists('datas/model_GBT.h5') and os.path.exists('datas/model_RFR.h5'):
+      x_train = x_train[:10]
+      y_train = y_train[:10]
+      model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+      model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
       model_GBT.load_weights('datas/model_GBT.h5')
       model_RFR.load_weights('datas/model_RFR.h5')
     else:
-      model_GBT.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('gbt'))
-      model_RFR.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('rfr'))
+      model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+      model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
   else:
-
-
-    x_train = x_scaler.transform(x_train)
-    y_train = y_scaler.transform(y_train.reshape(-1, 1))
-
-    y_train = np.ravel(y_train,  order = 'C')
-
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
@@ -93,13 +86,14 @@ def main():
 
   # TODO : Training
   predict_y_GBT = model_GBT.predict(predict_x)
+  predict_y_GBT = np.ravel(predict_y_GBT,  order = 'C')
   predict_y_RFR = model_RFR.predict(predict_x)
+  predict_y_RFR = np.ravel(predict_y_RFR,  order = 'C')
 
-  restored_x = predict_x
-  # restored_x = predict_scaler.inverse_transform(predict_x)
+  restored_x = x_scaler.inverse_transform(predict_x)
 
-  restored_y_GBT = predict_y_GBT
-  restored_y_RFR = predict_y_RFR
+  restored_y_GBT = y_scaler.inverse_transform(predict_y_GBT)
+  restored_y_RFR = y_scaler.inverse_transform(predict_y_RFR)
 
   result_list = []
 
@@ -111,6 +105,11 @@ def main():
 
 
     print (idx, data1, data2)
+    result_list.append(int((data1+data2) / 2))
+  submission = pandas.read_csv('datas/sample_submission.csv')
+  submission['sales'] = result_list
+  submission.to_csv('datas/submission.csv', index=False)
+
 
 
 
