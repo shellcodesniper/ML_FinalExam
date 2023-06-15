@@ -14,11 +14,12 @@ if gpus:
 import kuuwange.models as Model
 import kuuwange as MY
 from kuuwange.loaders import Loaders
-import time
+import time, platform, os
 
 
 # NOTE : 기존에 사용하던, Callbacks
 
+IS_MAC_OS = os.name == 'posix' and platform.system() == 'Darwin'
 
 def main():
 
@@ -33,41 +34,49 @@ def main():
   (predict_x, _)= predict_loader.as_raw_set()
   (x_test, y_test) = Loaders(True).get_validation_set() # TYPE : Train Dataset Generator
 
-  # train_generator = Loaders(True).as_generator(batch_size=100000, shuffle=True) # TYPE : Train Dataset Generator
-  # for data in train_generator:
-  #   [x_train, y_train] = data
-  #   # TODO : Train
-  #   model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-  #   model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
-  #
-  #   # INFO : Summary
-  #   # model_GBT.summary()
-  #   # model_RFR.summary()
-  #
-  #   # TODO : Evalulate
-  #   result_GBT = model_GBT.evaluate(x_test, y_test, return_dict=True)
-  #   result_RFR = model_RFR.evaluate(x_test, y_test, return_dict=True)
-  #
-  #   print("=====================================")
-  #   print(f"Result GBT : {result_GBT}")
-  #   print(f"Result RFR : {result_RFR}")
-  #   print("=====================================")
 
   # NOTE : Train All Data (Epoch 1)
   (x_train, y_train) = Loaders(True).as_raw_set()
-  model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-  model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
-  model_GBT.save_weights('datas/model_GBT.h5')
-  model_RFR.save_weights('datas/model_RFR.h5')
+  if IS_MAC_OS:
+    x_train = x_train[:100]
+    y_train = y_train[:100]
+    model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
+
+    model_GBT.load_weights('datas/model_GBT.h5')
+    model_RFR.load_weights('datas/model_RFR.h5')
+  else:
+    model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'), training= True)
+
+    train_generator = Loaders(True).as_generator(batch_size=len(x_train)/3, shuffle=True) # TYPE : Train Dataset Generator
+    for data in train_generator:
+      [x_train, y_train] = data
+      # TODO : Train
+      model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+      model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
+      # result_GBT = model_GBT.evaluate(x_test, y_test, return_dict=True)
+      # result_RFR = model_RFR.evaluate(x_test, y_test, return_dict=True)
+      #
+      # print("=====================================")
+      # print(f"Result GBT : {result_GBT}")
+      # print(f"Result RFR : {result_RFR}")
+      # print("=====================================")
+
+    model_GBT.save_weights('datas/model_GBT.h5')
+    model_RFR.save_weights('datas/model_RFR.h5')
 
 
+  # TODO : Training
   predict_y_GBT = model_GBT.predict(predict_x)
   predict_y_RFR = model_RFR.predict(predict_x)
   restored_y_GBT = predict_scaler.inverse_transform(predict_y_GBT)
   restored_y_RFR = predict_scaler.inverse_transform(predict_y_RFR)
 
   result_list = []
+
+  print (predict_x[0])
   for i in range(len(predict_y_GBT)):
     idx = predict_x[i][0][0]
     data = restored_y_GBT[i][0]
