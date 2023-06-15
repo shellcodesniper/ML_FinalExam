@@ -1,13 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 import tensorflow.keras.layers as layers
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-  try:
-    tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-    tf.config.experimental.set_memory_growth(gpus[0], False)
-  except RuntimeError as e:
-    print(e)
+import tensorflow_decision_forests as tfdf
 
 class TSBaseModel(keras.Model):
   def __init__(self, **kwargs):
@@ -33,4 +27,18 @@ class TSBaseModel(keras.Model):
     x = self.dense_2(x)
 
 
+    return self.outputL(x)
+
+
+class RandomForestModel(tfdf.keras.RandomForestModel):
+  def __init__(self, **kwargs):
+    super(RandomForestModel, self).__init__(**kwargs)
+    self.input_layer = layers.InputLayer(input_shape=(None,13))
+    self.outputL = layers.Dense(1)
+
+  def call(self, inputs, training=False):
+    x = self.input_layer(inputs)
+    # NOTE : demansion epand
+    x = tf.expand_dims(x, axis=0)
+    x = super(RandomForestModel, self).call(x)
     return self.outputL(x)
