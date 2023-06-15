@@ -33,17 +33,18 @@ def get_callback(name):
 
 # TODO : Concat Models into One
 
-def concatModel(tree_seed):
+def concatModel(tree_seed, input_shape=(14,)):
   Model_GBT = gradientBoostingModel(tree_seed)
   Model_RFR = randomForstRegressionModel(tree_seed)
-  Model_rs = RegressionModel()
+  Model_rs = RegressionModel(input_shape=(input_shape[0]+2,))
 
 
-  input_layer = layers.Input(shape=(14,))
+  input_layer = layers.Input(shape=input_shape)
   output_gbt = Model_GBT(input_layer)
   output_rfr = Model_RFR(input_layer)
+  output_layers = layers.concatenate([input_layer, output_gbt, output_rfr])
 
-  Model_Concated = keras.Model(inputs=input_layer, outputs=Model_rs([output_gbt, output_rfr]))
+  Model_Concated = keras.Model(inputs=input_layer, outputs=Model_rs(output_layers))
   return [Model_GBT, Model_RFR, Model_rs, Model_Concated]
 
 
@@ -51,10 +52,9 @@ def concatModel(tree_seed):
 
 
 class RegressionModel(keras.Model):
-  def __init__(self, **kwargs):
+  def __init__(self, input_shape=(16,), **kwargs):
     super(RegressionModel, self).__init__(**kwargs)
-    self.input_layer = layers.InputLayer(input_shape=(None,14))
-
+    self.input_layer = layers.InputLayer(input_shape=input_shape)
     self.dense_1 = layers.Dense(128, activation='relu')
     self.dense_2 = layers.Dense(256, activation='relu')
     self.dense_3 = layers.Dense(512, activation='relu')
@@ -70,7 +70,7 @@ class RegressionModel(keras.Model):
     x = self.input_layer(inputs)
 
     # NOTE : demansion epand
-    x = tf.expand_dims(x, axis=0)
+    x = tf.reshape(x, [-1, 16])
     if training:
       x = tf.nn.dropout(x, 0.2)
     x = self.dense_1(x)
