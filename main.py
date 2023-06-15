@@ -1,4 +1,7 @@
 import tensorflow as tf
+import warnings
+ 
+warnings.filterwarnings(action='ignore')
 tf.config.set_soft_device_placement(True)
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -25,8 +28,8 @@ def main():
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
   (predict_x, _)= Loaders(False).as_raw_set()
-  train_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
-  valid_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
+  train_generator = Loaders(True).as_generator(batch_size=100000, shuffle=True) # TYPE : Train Dataset Generator
+  (x_test, y_test) = Loaders(True).get_validation_set() # TYPE : Train Dataset Generator
 
   for data in train_generator:
     [x_train, y_train] = data
@@ -39,7 +42,6 @@ def main():
     # model_RFR.summary()
 
     # TODO : Evalulate
-    (x_test, y_test) = next(valid_generator)
     result_GBT = model_GBT.evaluate(x_test, y_test, return_dict=True)
     result_RFR = model_RFR.evaluate(x_test, y_test, return_dict=True)
 
@@ -48,7 +50,12 @@ def main():
     print(f"Result RFR : {result_RFR}")
     print("=====================================")
 
-    time.sleep(10)
+    predict_y_GBT = model_GBT.predict(predict_x)
+    predict_y_RFR = model_RFR.predict(predict_x)
+
+    print (predict_y_GBT)
+    print (predict_y_RFR)
+
 
 
 

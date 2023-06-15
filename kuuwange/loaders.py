@@ -125,8 +125,24 @@ class Loaders:
 
     return (x_train, y_train)
 
+  def get_validation_set(self):
+    (x_train, y_train) = self.as_raw_set()
+
+    TRAIN_SET_SIZE = len(x_train) * 0.8
+    x_set = x_train[TRAIN_SET_SIZE+1:]
+    y_set = y_train[TRAIN_SET_SIZE+1:]
+
+    y_set = np.ravel(y_set,  order = 'C')
+    return (x_set, y_set)
+
+
   def as_generator(self, batch_size = 1, shuffle = True):
     (x_train, y_train) = self.as_raw_set()
+
+    TRAIN_SET_SIZE = len(x_train) * 0.8
+    x_train = x_train[:TRAIN_SET_SIZE]
+    y_train = y_train[:TRAIN_SET_SIZE]
+
     for i in range(0, len(x_train), batch_size):
       collection_x = []
       collection_y = []
