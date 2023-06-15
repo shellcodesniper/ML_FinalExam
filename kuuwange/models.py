@@ -66,11 +66,11 @@ def gradientBoostingModel(seed):
     task=Task.REGRESSION,
     random_seed=seed,
     num_trees=10,
-    num_threads=4,
+    # num_threads=4,
     max_depth=10,
   )
   model.compile(
-    metrics=["mse", "mae"],
+    metrics=["mse", "mae", "loss"],
   )
   return model
 
@@ -79,11 +79,10 @@ def randomForstRegressionModel(seed):
     task=Task.REGRESSION,
     random_seed=seed,
     num_trees=10,
-    num_threads=4,
+    # num_threads=4,
     max_depth=10,
   )
   model.compile(
-    metrics=["mse", "mae"]
-
+    metrics=["mse", "mae", "loss"],
   )
   return model
