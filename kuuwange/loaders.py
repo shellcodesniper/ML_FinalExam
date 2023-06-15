@@ -131,7 +131,7 @@ class Loaders:
     # x_train = self.scaler.fit_transform(x_train)
     if (not SCALER_FITTED):
       self.x_scaler.fit(x_train)
-      self.y_scaler.fit(y_train.reshape(-1, 1))
+      self.y_scaler.fit(y_train)
       SCALER_FITTED = True
 
     x_train = self.x_scaler.transform(x_train)
