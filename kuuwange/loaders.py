@@ -154,6 +154,7 @@ class Loaders:
     return (x_set, y_set)
 
 
+  # DOC : Not Used ~
   def as_generator(self, batch_size = 1, shuffle = True):
     (x_train, y_train) = self.as_raw_set()
 
@@ -173,19 +174,27 @@ class Loaders:
       y_set = np.array(collection_y)
       # y_set= np.ravel(y_set,  order = 'C')
 
-      yield (np.array(collection_x), y_set)
+      x_set = np.array(collection_x)
+
+      x_set = np.reshape(x_set, (x_set.shape[0], 1, x_set.shape[1]))
+      y_set = np.reshape(y_set, (y_set.shape[0], 1, y_set.shape[1]))
+
+      yield (x_set, y_set)
 
 
+  # DOC : NOT Used 2
   def as_dataset(self):
     (x_train, y_train) = self.as_raw_set()
     dataset = tf.data.Dataset.from_tensors((x_train, y_train))
 
     return dataset
   
+  # DOC : NOT USED ~
   def get_sample(self):
     (x_train, y_train) = self.as_raw_set()
     return (x_train[0], y_train[0])
 
+  # DOC : NOT USED 3
   def as_randomforest_dataset(self):
     pre_processed = self.get_merged()
     pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
