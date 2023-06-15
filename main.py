@@ -62,12 +62,12 @@ def main():
       model_GBT.load_weights('datas/model_GBT.h5')
       model_RFR.load_weights('datas/model_RFR.h5')
     else:
-      model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-      model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
+      model_GBT.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('gbt'))
+      model_RFR.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('rfr'))
 
   else:
-    model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
+    model_GBT.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('gbt'))
+    model_RFR.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('rfr'))
 
     # TODO : Summary
     model_GBT.summary()
@@ -108,7 +108,7 @@ def main():
 
   concat_history = Model_Concated.fit(
     x_train, y_train,
-    verbose=0,
+    verbose='auto',
     epochs=100,
     batch_size=32,
     callbacks=Model.get_callback('concated'),
