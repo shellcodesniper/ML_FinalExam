@@ -48,7 +48,7 @@ def main():
     model_RFR.load_weights('datas/model_RFR.h5')
   else:
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
-    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'), training= True)
+    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
     # TODO : Summary
     model_GBT.summary()
