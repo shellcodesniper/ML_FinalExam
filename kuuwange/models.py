@@ -40,9 +40,13 @@ def concatModel(tree_seed, input_shape=(14,)):
 
 
   input_layer = layers.Input(shape=input_shape)
+
   output_gbt = Model_GBT(input_layer)
+  output_gbt = layers.Reshape((1,))(output_gbt)
   output_rfr = Model_RFR(input_layer)
+  output_rfr = layers.Reshape((1,))(output_rfr)
   output_layers = layers.concatenate([input_layer, output_gbt, output_rfr])
+  output_layers = layers.Reshape((input_shape[0]+2,))(output_layers)
 
   Model_Concated = keras.Model(inputs=input_layer, outputs=Model_rs(output_layers))
   return [Model_GBT, Model_RFR, Model_rs, Model_Concated]
