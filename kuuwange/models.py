@@ -2,6 +2,10 @@ import tensorflow as tf
 from tensorflow import keras
 import tensorflow.keras.layers as layers
 import tensorflow_decision_forests as tfdf
+from tensorflow_decision_forests.keras import Task
+
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 
 class TSBaseModel(keras.Model):
   def __init__(self, **kwargs):
@@ -29,4 +33,22 @@ class TSBaseModel(keras.Model):
 
     return self.outputL(x)
 
-RandomForestModel = tfdf.keras.RandomForestModel()
+def gradientBoostingModel(seed):
+  model_GBT = tfdf.keras.GradientBoostedTreesModel(
+    task=Task.REGRESSION,
+    random_seed=seed,
+    num_trees=10,
+    num_threads=4,
+    max_depth=10,
+  )
+  return model_GBT
+
+def randomForstRegressionModel(seed):
+  model = tfdf.keras.RandomForestModel(
+    task=Task.REGRESSION,
+    random_seed=seed,
+    num_trees=10,
+    num_threads=4,
+    max_depth=10,
+  )
+  return model

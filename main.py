@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow_decision_forests.keras import Task
 tf.config.set_soft_device_placement(True)
 # tf.debugging.set_log_device_placement(True)
 # SET GPU
@@ -14,11 +13,8 @@ if gpus:
 import kuuwange.models as Model
 import kuuwange as MY
 from kuuwange.loaders import Loader
-import math
+import math, time
 import numpy as np
-import tensorflow_decision_forests as tfdf
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
 
 es = tf.keras.callbacks.EarlyStopping(
   monitor='loss', verbose=1, mode='auto',
@@ -45,19 +41,20 @@ def main():
   # model = Model.RandomForestModel()
   
 
-  
-  model = tfdf.keras.GradientBoostedTreesModel(
-    task=Task.REGRESSION,
-    num_trees=10,
-    num_threads=4,
-    max_depth=10,
-  )
+  tree_seed = 9932 # NOTE : 같은 결과를 얻기 위해
+  model_GBT = Model.gradientBoostingModel(tree_seed)
 
-  (x_data, y_data) = Loader.as_raw_set()
-  x_train = x_data[:10000]
-  y_train = np.ravel(y_data[:10000],  order = 'C')
+  model_RFR = Model.randomForstRegressionModel(tree_seed)
 
-  model.fit(x_train, y_train, verbose=2)
+  generator = Loader.as_generator(batch_size=10000, shuffle=True)
+
+  for data in generator:
+    [x_train, y_train] = data
+    result_GBT = model_GBT.fit(x_train, y_train, verbose=1, callbacks=[es, mc, rlr, csv_logger])
+    result_RFR = model_RFR.fit(x_train, y_train, verbose=1, callbacks=[es, mc, rlr, csv_logger])
+
+    print (result_GBT.print(), result_RFR.print())
+    time.sleep(2)
 
   # kfold = KFold(n_splits=10)
 

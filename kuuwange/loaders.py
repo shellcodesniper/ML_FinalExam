@@ -18,27 +18,25 @@ def replace_string(datas):
   return datas.copy()
 
 class _Loaders:
-  def __init__(self):
-    self.test = pd.read_csv(os.path.join(BASE_PATH, 'test.csv'))
+  def __init__(self, IS_TRAIN=True):
+    self.base = pd.read_csv(os.path.join(BASE_PATH, 'test.csv')) if not IS_TRAIN else pd.read_csv(os.path.join(BASE_PATH, 'train.csv'))
+    self.merged_path = os.path.join(BASE_PATH, 'merged.pkl') if not IS_TRAIN else os.path.join(BASE_PATH, 'merged_train.pkl')
+
     self.scaler = StandardScaler(
       with_std=True,
       with_mean=True,
       copy=True
     )
 
-
-  def get_test(self):
-    return self.test
-
   def get_merged(self):
-    if os.path.exists('datas/merged.pkl'):
-      return pickle.load(open('datas/merged.pkl', 'rb'))
+    if os.path.exists(self.merged_path):
+      return pickle.load(open(self.merged_path, 'rb'))
 
     oil = pd.read_csv('datas/oil.csv')
     holidays = pd.read_csv('datas/holidays_events.csv')
     stores = pd.read_csv('datas/stores.csv')
     transactions = pd.read_csv('datas/transactions.csv')
-    train = pd.read_csv('datas/train.csv')
+    base_csv = self.base.copy()
 
     # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
     X = oil['dcoilwtico'].values.reshape((203,6))
@@ -47,7 +45,7 @@ class _Loaders:
     z = z.reshape((1218,1))
     oil['dcoilwtico'] = z
 
-    md = pd.merge(train, oil, how = 'left', on='date')
+    md = pd.merge(base_csv, oil, how = 'left', on='date')
     md = pd.merge(md, holidays, how = 'left',on = 'date')
     md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
     md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
@@ -114,6 +112,25 @@ class _Loaders:
 
 
     return (x_train, y_train)
+
+  def as_generator(self, batch_size = 1, shuffle = True):
+    (x_train, y_train) = self.as_raw_set()
+    for i in range(0, len(x_train), batch_size):
+      collection_x = []
+      collection_y = []
+      for j in range(batch_size):
+        if shuffle:
+          idx = np.random.randint(0, len(x_train))
+          collection_x.append(x_train[idx])
+          collection_y.append(y_train[idx])
+        else:
+          collection_x.append(x_train[i])
+          collection_y.append(y_train[i])
+      y_set = np.array(collection_y)
+      y_set= np.ravel(y_set,  order = 'C')
+
+      yield (np.array(collection_x), y_set)
+
 
   def as_dataset(self):
     (x_train, y_train) = self.as_raw_set()
