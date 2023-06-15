@@ -127,8 +127,7 @@ class Loaders:
       y_train = pd.DataFrame(np.zeros((len(x_train), 1)))
 
 
-    # NOTE : Scaling
-    # x_train = self.scaler.fit_transform(x_train)
+    # NOTE : Scaling ( JUST ONE TIME FIT!)
     if (not SCALER_FITTED):
       self.x_scaler.fit(x_train)
       self.y_scaler.fit(y_train)
@@ -152,8 +151,6 @@ class Loaders:
     TRAIN_SET_SIZE = int(len(x_train) * 0.8)
     x_set = x_train[TRAIN_SET_SIZE+1:]
     y_set = y_train[TRAIN_SET_SIZE+1:]
-
-    y_set = np.ravel(y_set,  order = 'C')
     return (x_set, y_set)
 
 
@@ -174,7 +171,7 @@ class Loaders:
         collection_y.append(y_train[idx])
 
       y_set = np.array(collection_y)
-      y_set= np.ravel(y_set,  order = 'C')
+      # y_set= np.ravel(y_set,  order = 'C')
 
       yield (np.array(collection_x), y_set)
 
