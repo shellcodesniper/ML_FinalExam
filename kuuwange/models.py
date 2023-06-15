@@ -7,22 +7,26 @@ from tensorflow_decision_forests.keras import Task
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
-
-es = tf.keras.callbacks.EarlyStopping(
-  monitor='loss', verbose=1, mode='auto',
-  baseline=None, restore_best_weights=True, patience=12
-)
-mc = tf.keras.callbacks.ModelCheckpoint(
-  filepath='datas/ckp.keras',  save_best_only=True
-)
-
-rlr = tf.keras.callbacks.ReduceLROnPlateau(
-  monitor='loss', factor=0.1, patience=10, verbose=2,
-  mode='auto'
-)
-csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
-
 # HACK : Callback Functions
+def get_callback(name):
+  save_path = f"datas/weight_{name}.keras"
+  log_path = f"datas/log_{name}.log"
+
+  es = tf.keras.callbacks.EarlyStopping(
+    monitor='loss', verbose=1, mode='auto',
+    baseline=None, restore_best_weights=True, patience=12
+  )
+  mc = tf.keras.callbacks.ModelCheckpoint(
+    filepath=save_path,  save_best_only=True
+  )
+
+  rlr = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='loss', factor=0.1, patience=10, verbose=2,
+    mode='auto'
+  )
+  csv_logger = tf.keras.callbacks.CSVLogger(log_path)
+  return [es, mc, rlr, csv_logger]
+
 
 
 

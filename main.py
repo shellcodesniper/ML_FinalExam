@@ -10,7 +10,7 @@ if gpus:
 
 import kuuwange.models as Model
 import kuuwange as MY
-from kuuwange.loaders import Loader
+from kuuwange.loaders import Loaders
 import time
 
 
@@ -24,13 +24,13 @@ def main():
 
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
-  train_generator = Loader(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
-  test_generator = Loader(False).as_generator(batch_size=10000, shuffle=True) # TYPE : Test Dataset Generator
+  train_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
+  test_generator = Loaders(False).as_generator(batch_size=10000, shuffle=True) # TYPE : Test Dataset Generator
 
   for data in train_generator:
     [x_train, y_train] = data
-    result_GBT = model_GBT.fit(x_train, y_train, verbose=1, callbacks=[es, mc, rlr, csv_logger])
-    result_RFR = model_RFR.fit(x_train, y_train, verbose=1, callbacks=[es, mc, rlr, csv_logger])
+    result_GBT = model_GBT.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('gbt'))
+    result_RFR = model_RFR.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('rfr'))
 
     print (result_GBT["mse"], result_RFR["mse"])
     time.sleep(2)
