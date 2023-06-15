@@ -26,7 +26,6 @@ class Loaders:
 
     self.scaler = StandardScaler(
       with_std=True,
-      with_mean=True,
       copy=True
     )
   def get_scaler(self):
@@ -120,10 +119,7 @@ class Loaders:
     # NOTE : Scaling
     # x_train = self.scaler.fit_transform(x_train)
     x_train = x_train.to_numpy()
-    if self.is_train:
-      y_train = self.scaler.fit_transform(y_train)
-    else:
-      y_train = y_train.to_numpy()
+    y_train = y_train.to_numpy()
 
     print ("============ X, Y ===============")
     print ("X[0]:", x_train[0], x_train.shape,"\nY[0]:", y_train[0], y_train.shape)
