@@ -70,7 +70,7 @@ def gradientBoostingModel(seed):
     max_depth=10,
   )
   model.compile(
-    metrics=["mse", "mae", "loss"],
+    metrics=["mse", "mae"],
   )
   return model
 
@@ -83,6 +83,6 @@ def randomForstRegressionModel(seed):
     max_depth=10,
   )
   model.compile(
-    metrics=["mse", "mae", "loss"],
+    metrics=["mse", "mae"],
   )
   return model
