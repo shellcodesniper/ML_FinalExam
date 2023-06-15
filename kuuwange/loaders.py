@@ -49,8 +49,8 @@ class Loaders:
 
     md = pd.merge(base_csv, oil, how = 'left', on='date')
     md = pd.merge(md, holidays, how = 'left',on = 'date')
-    md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
     md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
+    md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
     md.rename(columns={'type_x':'holiday_type', 'type_y':'store_type'}, inplace = True)
     
 
@@ -67,9 +67,19 @@ class Loaders:
     md['dcoilwtico']= md['dcoilwtico'].fillna(method='bfill')
 
     # TODO : transactions -> 거래량 추론
-    md['transactions'] = md.groupby(['store_nbr','holiday_type'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 같은 상점의 holiday_type 이 같은경우를 평균을 내서 채움.
-    md['transactions'] = md.groupby(['store_nbr'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 그 외값은, 같은 상점의 평균으로 채움.
-    md['transactions'] = md['transactions'].fillna(method='bfill') # NOTE : 그 외값은, 같은 상점의 평균으로 채움.
+    tc = md.copy()
+    tc_base = tc.groupby(['store_nbr', 'holiday_type'])
+    null_list = tc[tc['transactions'].isnull()].index
+
+    for null_idx in tqdm.tqdm(null_list) :
+      null_ts = tc.iloc[null_idx]
+      print (null_ts)
+      similar = md[(md['store_nbr'] == null_ts['store_nbr']) & (md['holiday_type'] == null_ts['holiday_type'])]
+      print (similar)
+      time.sleep(30)
+      # tc.iloc[transaction_index]['transactions'] = np.mean((tc_base['transactions'].get_group((tc['store_nbr'][transaction_index], tc['holiday_type'][transaction_index]))).fillna(method='bfill'))
+    md['transactions'] = tc['transactions']
+    # HACK : transactions 값은 추론된 값으로 채워짐
 
     print(f"NULL(A):\n{md.isnull().sum()}")
 

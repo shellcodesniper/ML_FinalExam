@@ -24,9 +24,9 @@ def main():
 
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
+  (predict_x, _)= Loaders(False).as_raw_set()
   train_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
   valid_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
-  (predict_x, _)= Loaders(False).as_raw_set()
 
   for data in train_generator:
     [x_train, y_train] = data
