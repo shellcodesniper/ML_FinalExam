@@ -76,40 +76,25 @@ class Loaders:
     md.to_csv(csv_buf, sep=",", index=False, mode="wt", encoding="UTF-8")
     csv_buf.seek(0)
     md = pd.read_csv(csv_buf)
-    pickle.dump(md, open('datas/merged.pkl', 'wb'))
+    pickle.dump(md, open(self.merged_path, 'wb'))
 
     return md 
 
   def as_raw_set(self):
     pre_processed = self.get_merged()
     pre_processed = pre_processed.reset_index().set_index('id')
-
-
     pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
-    # pre_processed['dcoilwtico'] = pre_processed['dcoilwtico'].str.replace(',', '').astype(float)
 
-
-    # x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
     x_train = pre_processed.drop(['sales'], axis=1) # TYPE : Drop Just sales
     y_train = pre_processed[['sales']] # TYPE : 2-D Required.
-    # print (x_train.head())
-
-    # x_train = x_train.to_numpy()
-    # y_train = y_train.to_numpy()
-
 
     # NOTE : Scaling
-
     x_train = self.scaler.fit_transform(x_train)
     y_train = self.scaler.fit_transform(y_train)
+
     print ("============ X, Y ===============")
     print ("X[0]:", x_train[0], x_train.shape,"\nY[0]:", y_train[0], y_train.shape)
     print ("===========================")
-
-    # print (x_train.shape, y_train.shape)
-
-    # y_train = y_train.reshape((-1,1))
-
 
     return (x_train, y_train)
 
@@ -118,14 +103,12 @@ class Loaders:
     for i in range(0, len(x_train), batch_size):
       collection_x = []
       collection_y = []
+
       for j in range(batch_size):
-        if shuffle:
-          idx = np.random.randint(0, len(x_train))
-          collection_x.append(x_train[idx])
-          collection_y.append(y_train[idx])
-        else:
-          collection_x.append(x_train[i])
-          collection_y.append(y_train[i])
+        idx = np.random.randint(0, len(x_train)) if shuffle else i + j
+        collection_x.append(x_train[idx])
+        collection_y.append(y_train[idx])
+
       y_set = np.array(collection_y)
       y_set= np.ravel(y_set,  order = 'C')
 

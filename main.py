@@ -25,15 +25,29 @@ def main():
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
   train_generator = Loaders(True).as_generator(batch_size=10000, shuffle=True) # TYPE : Train Dataset Generator
-  test_generator = Loaders(False).as_generator(batch_size=10000, shuffle=True) # TYPE : Test Dataset Generator
+  test_generator = Loaders(False).as_generator(batch_size=1000,  shuffle=False) # TYPE : Test Dataset Generator
 
   for data in train_generator:
     [x_train, y_train] = data
-    result_GBT = model_GBT.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('gbt'))
-    result_RFR = model_RFR.fit(x_train, y_train, verbose=1, callbacks=Model.get_callback('rfr'))
+    # TODO : Train
+    model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+    model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
-    print (result_GBT["mse"], result_RFR["mse"])
-    time.sleep(2)
+    # INFO : Summary
+    model_GBT.summary()
+    model_RFR.summary()
+
+    # TODO : Evalulate
+    x_test, y_test = next(test_generator)
+    result_GBT = model_GBT.evaluate(x_train, y_train)
+    result_RFR = model_RFR.evaluate(x_train, y_train)
+
+    print("=====================================")
+    print(f"Result GBT : {result_GBT}")
+    print(f"Result RFR : {result_RFR}")
+    print("=====================================")
+
+    time.sleep(10)
 
 
 
