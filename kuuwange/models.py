@@ -65,7 +65,7 @@ def gradientBoostingModel(seed):
   model = tfdf.keras.GradientBoostedTreesModel(
     task=Task.REGRESSION,
     random_seed=seed,
-    num_trees=10,
+    num_trees=32,
     # num_threads=4,
     max_depth=10,
   )
@@ -78,7 +78,7 @@ def randomForstRegressionModel(seed):
   model = tfdf.keras.RandomForestModel(
     task=Task.REGRESSION,
     random_seed=seed,
-    num_trees=10,
+    num_trees=32,
     # num_threads=4,
     max_depth=10,
   )
