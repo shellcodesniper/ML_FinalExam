@@ -40,15 +40,20 @@ def main():
   y_train = np.ravel(y_train,  order = 'C')
 
   if IS_MAC_OS:
+    t_x = x_train
+    t_y = y_train
     x_train = x_train[:10]
     y_train = y_train[:10]
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
-    if os.path.exists('datas/model_GBT.h5'):
+    if os.path.exists('datas/model_GBT.h5') and os.path.exists('datas/model_RFR.h5'):
       model_GBT.load_weights('datas/model_GBT.h5')
-    if os.path.exists('datas/model_RFR.h5'):
       model_RFR.load_weights('datas/model_RFR.h5')
+    else:
+      model_GBT.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('gbt'))
+      model_RFR.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('rfr'))
+
   else:
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
