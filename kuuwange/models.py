@@ -4,9 +4,6 @@ import tensorflow.keras.layers as layers
 import tensorflow_decision_forests as tfdf
 from tensorflow_decision_forests.keras import Task
 
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
-
 # HACK : Callback Functions
 def get_callback(name):
   save_path = f"datas/weight_{name}.keras"

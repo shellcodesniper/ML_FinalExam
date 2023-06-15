@@ -1,26 +1,17 @@
 if __name__ != "__main__":
   raise Exception("This script is not meant to be imported.")
 
-import dash, webbrowser, tqdm
+import dash
 from kuuwange.loaders import Loader
 
-import numpy as np
 import pandas as pd
-import seaborn as sns
-import plotly.express as px
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
-from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
 import plotly.subplots as ms
-import plotly.express as px
-import datetime, os, sys, time, glob
 import dash.html as html
 from dash.dash import dcc
-import dash_mantine_components as dmc
 
 
-# plot total average sale vs lags for train data (total -> mean of all stores and families)
 
 train_data: pd.DataFrame = Loader.get_train()
 store_info: pd.DataFrame = Loader.get_stores()
@@ -29,7 +20,6 @@ transact: pd.DataFrame = Loader.get_transactions()
 holidays: pd.DataFrame = Loader.get_holidays()
 
 plot_data = train_data.groupby(['date']).agg({'sales': 'sum'}).reset_index()
-# plot_data['date'] = pd.to_datetime(plot_data['date'].astype(str), format='%Y-%m-%d')
 
 plot_data = plot_data.merge(oil_info, on='date', how='left')
 plot_data = plot_data.merge(transact, on='date', how='left')
