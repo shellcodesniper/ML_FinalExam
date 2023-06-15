@@ -1,5 +1,5 @@
 from io import StringIO
-import os, glob, tqdm, pickle
+import os, glob, tqdm, pickle, datetime
 import numpy as np, pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
@@ -38,6 +38,7 @@ class Loaders:
     holidays = pd.read_csv('datas/holidays_events.csv')
     stores = pd.read_csv('datas/stores.csv')
     transactions = pd.read_csv('datas/transactions.csv')
+    transactions['transactions'] = transactions['transactions'].astype('uint32')
     base_csv = self.base.copy()
 
     # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
@@ -49,9 +50,15 @@ class Loaders:
 
     md = pd.merge(base_csv, oil, how = 'left', on='date')
     md = pd.merge(md, holidays, how = 'left',on = 'date')
-    md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
     md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
+    md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
     md.rename(columns={'type_x':'holiday_type', 'type_y':'store_type'}, inplace = True)
+
+    # md['transactions'] = md['transactions'].fillna(-1).astype('int32')
+
+    if (self.is_train):
+      md['sales'] = md['sales'].astype('float32')
+
     
 
     # TODO : String ( object ) -> Numeric 으로 변환
@@ -65,21 +72,17 @@ class Loaders:
     print(f"NULL(B):\n{md.isnull().sum()}")
 
     md['dcoilwtico']= md['dcoilwtico'].fillna(method='bfill')
+    md['dcoilwtico'] = md['dcoilwtico'].astype('float32')
 
-    # TODO : transactions -> 거래량 추론
-    tc = md.copy()
-    tc_base = tc.groupby(['store_nbr', 'holiday_type'])
-    null_list = tc[tc['transactions'].isnull()].index
+    # TODO : 1. 같은 날짜의 해당 상점 평균 거래량으로 채우기
+    md['transactions'] = md['transactions'].fillna(md.groupby(['date', 'store_nbr'])['transactions'].transform('mean'))
 
-    for null_idx in tqdm.tqdm(null_list) :
-      null_ts = tc.iloc[null_idx]
-      print (null_ts)
-      similar = md[(md['store_nbr'] == null_ts['store_nbr']) & (md['holiday_type'] == null_ts['holiday_type'])]
-      print (similar)
-      time.sleep(30)
-      # tc.iloc[transaction_index]['transactions'] = np.mean((tc_base['transactions'].get_group((tc['store_nbr'][transaction_index], tc['holiday_type'][transaction_index]))).fillna(method='bfill'))
-    md['transactions'] = tc['transactions']
-    # HACK : transactions 값은 추론된 값으로 채워짐
+    # TODO : 2. 같은 공휴일의 해당 상점 평균 거래량으로 채우기
+    md['transactions'] = md['transactions'].fillna(md.groupby(['holiday_type', 'store_nbr'])['transactions'].transform('mean'))
+
+    # TODO : 3. 같은 공휴일의 전체 상점 평균 거래량으로 채우기
+    md['transactions'] = md['transactions'].fillna(md.groupby('holiday_type')['transactions'].transform('mean'))
+
 
     print(f"NULL(A):\n{md.isnull().sum()}")
 
