@@ -41,8 +41,12 @@ def main():
 
   # NOTE : Prepare Models
   tree_seed = random.randint(0,999999)  # NOTE : 같은 결과를 얻기 위해
-  model_GBT = Model.gradientBoostingModel(tree_seed)
-  model_RFR = Model.randomForstRegressionModel(tree_seed)
+  [model_GBT, model_RFR, model_Rs, Model_Concated] = Model.concatModel(tree_seed)
+
+
+  Model_Concated.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'])
+
+  Model_Concated.summary()
 
 
 

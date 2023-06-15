@@ -31,35 +31,56 @@ def get_callback(name):
 
 
 
+# TODO : Concat Models into One
+
+def concatModel(tree_seed):
+  Model_GBT = gradientBoostingModel(tree_seed)
+  Model_RFR = randomForstRegressionModel(tree_seed)
+  Model_rs = RegressionModel()
+
+
+  input_layer = layers.Input(shape=(14,))
+  output_gbt = Model_GBT(input_layer)
+  output_rfr = Model_RFR(input_layer)
+
+  Model_Concated = keras.Model(inputs=input_layer, outputs=Model_rs([output_gbt, output_rfr]))
+  return [Model_GBT, Model_RFR, Model_rs, Model_Concated]
 
 
 
 
-class TSBaseModel(keras.Model):
+
+class RegressionModel(keras.Model):
   def __init__(self, **kwargs):
-    super(TSBaseModel, self).__init__(**kwargs)
-    self.input_layer = layers.InputLayer(input_shape=(None,13))
-    self.lstm_1 = layers.LSTM(13, return_sequences=True)
-    self.lstm_2 = layers.LSTM(6)
-    self.dense_1 = layers.Dense(32, activation='relu')
-    self.dense_2 = layers.Dense(16, activation='relu')
-    self.outputL = layers.Dense(1)
+    super(RegressionModel, self).__init__(**kwargs)
+    self.input_layer = layers.InputLayer(input_shape=(None,14))
+
+    self.dense_1 = layers.Dense(128, activation='relu')
+    self.dense_2 = layers.Dense(256, activation='relu')
+    self.dense_3 = layers.Dense(512, activation='relu')
+    self.dense_4= layers.Dense(128, activation='relu')
+
+
+
+    self.outputL = layers.Dense(1, activation='linear')
+
+
 
   def call(self, inputs, training=False):
     x = self.input_layer(inputs)
+
     # NOTE : demansion epand
     x = tf.expand_dims(x, axis=0)
-    x = self.lstm_1(x)
-    if training:
-      x = tf.nn.dropout(x, 0.2)
-    x = self.lstm_2(x)
     if training:
       x = tf.nn.dropout(x, 0.2)
     x = self.dense_1(x)
     x = self.dense_2(x)
+    x = self.dense_3(x)
+    x = self.dense_4(x)
 
 
     return self.outputL(x)
+
 
 def gradientBoostingModel(seed):
   model = tfdf.keras.GradientBoostedTreesModel(
@@ -72,6 +93,7 @@ def gradientBoostingModel(seed):
   model.compile(
     metrics=["mse", "mae"],
   )
+
   return model
 
 def randomForstRegressionModel(seed):
