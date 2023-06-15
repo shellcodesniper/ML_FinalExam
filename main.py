@@ -55,10 +55,10 @@ def main():
     if os.path.exists('datas/model_GBT.h5') and os.path.exists('datas/model_RFR.h5'):
       x_train = x_train[:10]
       y_train = y_train[:10]
-      model_GBT(x_train, y_train, verbose=0)
-      model_RFR(x_train, y_train, verbose=0)
-      model_GBT.load_weights('datas/model_GBT.h5')
-      model_RFR.load_weights('datas/model_RFR.h5')
+      model_GBT(x_train, y_train)
+      model_RFR(x_train, y_train)
+      model_GBT = model_GBT.load_weights('datas/model_GBT.h5')
+      model_GBT = model_RFR.load_weights('datas/model_RFR.h5')
     else:
       model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
       model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
