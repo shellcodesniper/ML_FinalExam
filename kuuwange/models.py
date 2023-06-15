@@ -74,7 +74,7 @@ class RegressionModel(keras.Model):
     x = self.input_layer(inputs)
 
     # NOTE : demansion epand
-    x = tf.reshape(x, [-1, 16])
+    x = tf.reshape(x, [-1, 18])
     if training:
       x = tf.nn.dropout(x, 0.2)
     x = self.dense_1(x)
