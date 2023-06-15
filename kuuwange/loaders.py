@@ -118,7 +118,8 @@ class Loaders:
       y_train = pd.DataFrame(np.zeros((len(x_train), 1)))
 
     # NOTE : Scaling
-    x_train = self.scaler.fit_transform(x_train)
+    # x_train = self.scaler.fit_transform(x_train)
+    x_train = x_train.to_numpy()
     y_train = self.scaler.fit_transform(y_train)
 
     print ("============ X, Y ===============")
