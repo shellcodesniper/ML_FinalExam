@@ -48,7 +48,10 @@ def main():
   
   model = tfdf.keras.GradientBoostedTreesModel(
     task=Task.REGRESSION,
-    num_trees=50)
+    num_trees=10,
+    num_threads=4,
+    max_depth=10,
+  )
 
   (x_data, y_data) = Loader.as_raw_set()
   x_train = x_data[:10000]

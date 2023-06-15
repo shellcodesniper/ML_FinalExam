@@ -52,6 +52,7 @@ class _Loaders:
     md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
     md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
     md.rename(columns={'type_x':'holiday_type', 'type_y':'store_type'}, inplace = True)
+    
 
     # TODO : String ( object ) -> Numeric 으로 변환
     for col in md.columns:
@@ -83,13 +84,15 @@ class _Loaders:
 
   def as_raw_set(self):
     pre_processed = self.get_merged()
+    pre_processed = pre_processed.reset_index().set_index('id')
 
 
     pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
     # pre_processed['dcoilwtico'] = pre_processed['dcoilwtico'].str.replace(',', '').astype(float)
 
 
-    x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
+    # x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
+    x_train = pre_processed.drop(['sales'], axis=1) # TYPE : Drop Just sales
     y_train = pre_processed[['sales']] # TYPE : 2-D Required.
     # print (x_train.head())
 
@@ -101,6 +104,9 @@ class _Loaders:
 
     x_train = self.scaler.fit_transform(x_train)
     y_train = self.scaler.fit_transform(y_train)
+    print ("============ X, Y ===============")
+    print ("X[0]:", x_train[0], x_train.shape,"\nY[0]:", y_train[0], y_train.shape)
+    print ("===========================")
 
     # print (x_train.shape, y_train.shape)
 
