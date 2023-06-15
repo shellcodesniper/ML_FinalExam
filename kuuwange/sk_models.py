@@ -11,5 +11,24 @@ COLLAPSED_MODEL_PIPELINE = []
 
 _linearRegressor = LinearRegression()
 _lasso = Lasso()
+_elasticNet = ElasticNet()
+_decisionTreeRegressor = DecisionTreeRegressor()
+_kNeighborsRegressor = KNeighborsRegressor()
+_gradientBoostingRegressor = GradientBoostingRegressor()
+_randomForestRegressor = RandomForestRegressor()
+_histGradientBoostingRegressor = HistGradientBoostingRegressor()
 
 
+pipeline = [
+  ('LinearRegressor', _linearRegressor),
+  ('Lasso', _lasso),
+  ('ElasticNet', _elasticNet),
+  ('DecisionTreeRegressor', _decisionTreeRegressor),
+  ('KNeighborsRegressor', _kNeighborsRegressor),
+  ('GradientBoostingRegressor', _gradientBoostingRegressor),
+  ('RandomForestRegressor', _randomForestRegressor),
+  ('HistGradientBoostingRegressor', _histGradientBoostingRegressor),
+]
+
+for (name, model) in pipeline:
+  COLLAPSED_MODEL_PIPELINE.append((name, model))
