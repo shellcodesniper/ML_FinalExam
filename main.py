@@ -55,6 +55,12 @@ def main():
       model_RFR.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('rfr'))
 
   else:
+    scaler = predict_loader.get_scaler()
+
+    x_train = scaler.transform(x_train)
+    y_train = scaler.transform(predict_x)
+    y_train = np.ravel(y_train,  order = 'C')
+
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
