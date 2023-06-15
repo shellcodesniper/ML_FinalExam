@@ -111,7 +111,6 @@ def main():
     verbose=0,
     epochs=100,
     batch_size=32,
-    loss='mse',
     callbacks=Model.get_callback('concated'),
   )
 
