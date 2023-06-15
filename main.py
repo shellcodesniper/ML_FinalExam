@@ -39,8 +39,8 @@ def main():
   (x_train, y_train) = Loaders(True).as_raw_set()
 
   if IS_MAC_OS:
-    x_train = x_train[:100]
-    y_train = y_train[:100]
+    x_train = x_train[:10]
+    y_train = y_train[:10]
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
@@ -50,7 +50,7 @@ def main():
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
     model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'), training= True)
 
-    train_generator = Loaders(True).as_generator(batch_size=len(x_train)/3, shuffle=True) # TYPE : Train Dataset Generator
+    train_generator = Loaders(True).as_generator(batch_size=int(len(x_train)/3), shuffle=False) # TYPE : Train Dataset Generator
     for data in train_generator:
       [x_train, y_train] = data
       # TODO : Train
@@ -71,14 +71,17 @@ def main():
   # TODO : Training
   predict_y_GBT = model_GBT.predict(predict_x)
   predict_y_RFR = model_RFR.predict(predict_x)
+
+  restored_x = predict_scaler.inverse_transform(predict_x)
+
   restored_y_GBT = predict_scaler.inverse_transform(predict_y_GBT)
   restored_y_RFR = predict_scaler.inverse_transform(predict_y_RFR)
 
   result_list = []
 
-  print (predict_x[0])
-  for i in range(len(predict_y_GBT)):
-    idx = predict_x[i][0][0]
+  print (restored_x[0])
+  for i in range(len(restored_x)):
+    idx = restored_x[i][0]
     data = restored_y_GBT[i][0]
 
     print (idx, data)
