@@ -1,3 +1,4 @@
+from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 import warnings
  
@@ -38,6 +39,15 @@ def main():
   # NOTE : Train All Data (Epoch 1)
   (x_train, y_train) = Loaders(True).as_raw_set()
   y_train = np.ravel(y_train,  order = 'C')
+  x_scaler = StandardScaler(
+    with_std=True,
+  )
+  x_scaler.fit(x_train)
+
+  y_scaler = StandardScaler(
+    with_std=True,
+  )
+  y_scaler.fit(y_train.reshape(-1, 1))
 
   if IS_MAC_OS:
     t_x = x_train
@@ -55,10 +65,11 @@ def main():
       model_RFR.fit(t_x, t_y, verbose=0, callbacks=Model.get_callback('rfr'))
 
   else:
-    scaler = predict_loader.get_scaler()
 
-    x_train = scaler.transform(x_train)
-    y_train = scaler.transform(predict_x)
+
+    x_train = x_scaler.transform(x_train)
+    y_train = y_scaler.transform(y_train.reshape(-1, 1))
+
     y_train = np.ravel(y_train,  order = 'C')
 
     model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
