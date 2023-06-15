@@ -58,8 +58,8 @@ def main():
   model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
   model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
-  model_GBT.save('datas/model_GBT.keras')
-  model_RFR.save('datas/model_RFR.keras')
+  model_GBT.save('datas/model_GBT.h5')
+  model_RFR.save('datas/model_RFR.h5')
 
 
   predict_y_GBT = model_GBT.predict(predict_x)
