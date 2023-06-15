@@ -117,8 +117,8 @@ def main():
 
   print (concat_history.history['loss'])
 
-  Model_RS.save('datas/model_RS.keras')
-  Model_Concated.save('datas/model_Concated.keras')
+  # model_RS.save('datas/model_RS.keras')
+  # Model_Concated.save('datas/model_Concated.keras')
 
 
   collaborated_result = Model_Concated.evaluate(x_test, y_test, return_dict=True)
@@ -128,6 +128,8 @@ def main():
   # NOTE : Predict
 
   predict_y = Model_Concated.predict(predict_x)
+
+  print (predict_y)
 
   restored_x = x_scaler.inverse_transform(predict_x)
   restored_y = y_scaler.inverse_transform(predict_y)
