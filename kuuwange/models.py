@@ -13,7 +13,7 @@ def get_callback(name):
   log_path = f"datas/log_{name}.log"
 
   es = tf.keras.callbacks.EarlyStopping(
-    monitor='rmse', verbose=1, mode='auto',
+    monitor='loss', verbose=1, mode='auto',
     baseline=None, restore_best_weights=True, patience=12
   )
   mc = tf.keras.callbacks.ModelCheckpoint(
@@ -21,7 +21,7 @@ def get_callback(name):
   )
 
   rlr = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='rmse', factor=0.1, patience=10, verbose=2,
+    monitor='loss', factor=0.1, patience=10, verbose=2,
     mode='auto'
   )
   csv_logger = tf.keras.callbacks.CSVLogger(log_path)
@@ -49,6 +49,7 @@ def concatModel(tree_seed, input_shape=(16,)):
   output_layers = layers.Reshape((input_shape[0]+2,))(output_layers)
 
   Model_Concated = keras.Model(inputs=input_layer, outputs=Model_rs(output_layers))
+  Model_Concated.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'], run_eagerly=True)
   return [Model_GBT, Model_RFR, Model_rs, Model_Concated]
 
 
