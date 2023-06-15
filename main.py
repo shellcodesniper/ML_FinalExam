@@ -108,7 +108,7 @@ def main():
 
   concat_history = Model_Concated.fit(
     x_train, y_train,
-    verbose='auto',
+    verbose=2,
     epochs=100,
     batch_size=32,
     callbacks=Model.get_callback('concated'),
