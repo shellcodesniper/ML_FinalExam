@@ -82,10 +82,12 @@ def main():
 
   print (restored_x[0])
   for i in range(len(restored_x)):
-    idx = restored_x[i][0]
-    data = restored_y_GBT[i][0]
+    idx = int(restored_x[i][0])
+    data1 = restored_y_GBT[i]
+    data2 = restored_y_RFR[i]
 
-    print (idx, data)
+
+    print (idx, data1, data2)
 
 
 
