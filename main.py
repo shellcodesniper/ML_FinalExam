@@ -1,7 +1,6 @@
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
-import warnings
-import pandas
+import pandas, warnings, math, random
  
 warnings.filterwarnings(action='ignore')
 tf.config.set_soft_device_placement(False)
@@ -22,7 +21,7 @@ import numpy as np
 
 # NOTE : 기존에 사용하던, Callbacks
 
-IS_MAC_OS = os.name == 'posix' and platform.system() == 'Darwin'
+IS_MAC_OS = platform.system() == 'Darwin'
 
 def main():
   DataLoader = Loaders(True)
@@ -41,7 +40,7 @@ def main():
 
 
   # NOTE : Prepare Models
-  tree_seed = 9932 # NOTE : 같은 결과를 얻기 위해
+  tree_seed = random.randint(0,999999)  # NOTE : 같은 결과를 얻기 위해
   model_GBT = Model.gradientBoostingModel(tree_seed)
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
@@ -103,7 +102,9 @@ def main():
 
 
     print (idx, data1, data2)
-    result_list.append(int((data1+data2) / 2))
+    # result_list.append(int((data1+data2) / 2))
+    import math
+    result_list.append(math.ceil(data2))
   submission = pandas.read_csv('datas/sample_submission.csv')
   submission['sales'] = result_list
   submission.to_csv('datas/submission.csv', index=False)
