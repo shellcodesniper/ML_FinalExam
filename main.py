@@ -15,6 +15,7 @@ import kuuwange.models as Model
 import kuuwange as MY
 from kuuwange.loaders import Loaders
 import time, platform, os
+import numpy as np
 
 
 # NOTE : 기존에 사용하던, Callbacks
@@ -36,6 +37,7 @@ def main():
 
   # NOTE : Train All Data (Epoch 1)
   (x_train, y_train) = Loaders(True).as_raw_set()
+  y_train = np.ravel(y_train,  order = 'C')
 
   if IS_MAC_OS:
     x_train = x_train[:10]
