@@ -128,7 +128,7 @@ class Loaders:
   def get_validation_set(self):
     (x_train, y_train) = self.as_raw_set()
 
-    TRAIN_SET_SIZE = len(x_train) * 0.8
+    TRAIN_SET_SIZE = int(len(x_train) * 0.8)
     x_set = x_train[TRAIN_SET_SIZE+1:]
     y_set = y_train[TRAIN_SET_SIZE+1:]
 
@@ -139,7 +139,7 @@ class Loaders:
   def as_generator(self, batch_size = 1, shuffle = True):
     (x_train, y_train) = self.as_raw_set()
 
-    TRAIN_SET_SIZE = len(x_train) * 0.8
+    TRAIN_SET_SIZE = int(len(x_train) * 0.8)
     x_train = x_train[:TRAIN_SET_SIZE]
     y_train = y_train[:TRAIN_SET_SIZE]
 
