@@ -13,7 +13,7 @@ def get_callback(name):
   log_path = f"datas/log_{name}.log"
 
   es = tf.keras.callbacks.EarlyStopping(
-    monitor='loss', verbose=1, mode='auto',
+    monitor='rmse', verbose=1, mode='auto',
     baseline=None, restore_best_weights=True, patience=12
   )
   mc = tf.keras.callbacks.ModelCheckpoint(
@@ -21,7 +21,7 @@ def get_callback(name):
   )
 
   rlr = tf.keras.callbacks.ReduceLROnPlateau(
-    monitor='loss', factor=0.1, patience=10, verbose=2,
+    monitor='rmse', factor=0.1, patience=10, verbose=2,
     mode='auto'
   )
   csv_logger = tf.keras.callbacks.CSVLogger(log_path)
