@@ -135,8 +135,8 @@ class Loaders:
       SCALER_FITTED = True
 
     x_train = self.x_scaler.transform(x_train)
-    y_train = self.y_scaler.transform(y_train.reshape(-1, 1))
-    y_train = np.ravel(y_train,  order = 'C')
+    y_train = self.y_scaler.transform(y_train)
+    y_train = np.ravel(y_train.reshape(-1, 1),  order = 'C')
 
     print ("============ X, Y ===============")
     print ("X[0]:", x_train[0], x_train.shape)
