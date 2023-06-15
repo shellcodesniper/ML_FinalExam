@@ -3,14 +3,14 @@ import tensorflow as tf
 import pandas, warnings, math, random
  
 warnings.filterwarnings(action='ignore')
-tf.config.set_soft_device_placement(False)
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-  try:
-    tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-    tf.config.experimental.set_memory_growth(gpus[0], True)
-  except RuntimeError as e:
-    print(e)
+tf.config.set_soft_device_placement(True)
+# gpus = tf.config.experimental.list_physical_devices('GPU')
+# if gpus:
+#   try:
+#     tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
+#     tf.config.experimental.set_memory_growth(gpus[0], True)
+#   except RuntimeError as e:
+#     print(e)
 
 import kuuwange.models as Model
 import kuuwange as MY
