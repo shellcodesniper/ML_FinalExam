@@ -87,6 +87,9 @@ def main():
   # TODO : Ocastration
   Model_Concated.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'])
 
+  model_GBT.summary()
+  model_RFR.summary()
+  model_RS.summary()
   Model_Concated.summary()
 
   Model_Concated.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('concated'))
