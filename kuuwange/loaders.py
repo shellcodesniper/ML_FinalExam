@@ -38,7 +38,6 @@ class Loaders:
     holidays = pd.read_csv('datas/holidays_events.csv')
     stores = pd.read_csv('datas/stores.csv')
     transactions = pd.read_csv('datas/transactions.csv')
-    transactions['transactions'] = transactions['transactions'].astype('uint32')
     base_csv = self.base.copy()
 
     # TODO : oil -> 전날 가격이 없는 경우, 전전날 가격으로 채우기
@@ -53,8 +52,6 @@ class Loaders:
     md = pd.merge(md, transactions, how ='left', on =['date','store_nbr'])
     md = pd.merge(md, stores, how = 'left', on = 'store_nbr')
     md.rename(columns={'type_x':'holiday_type', 'type_y':'store_type'}, inplace = True)
-
-    # md['transactions'] = md['transactions'].fillna(-1).astype('int32')
 
     if (self.is_train):
       md['sales'] = md['sales'].astype('float32')
@@ -83,6 +80,11 @@ class Loaders:
     # TODO : 3. 같은 공휴일의 전체 상점 평균 거래량으로 채우기
     md['transactions'] = md['transactions'].fillna(md.groupby('holiday_type')['transactions'].transform('mean'))
 
+    # TODO : 4. 같은 상점의 전체 평균 거래량으로 채우기
+    md['transactions'] = md['transactions'].fillna(md.groupby('store_nbr')['transactions'].transform('mean'))
+
+    # TODO : 5. 전체 평균 거래량으로 채우기
+    md['transactions'] = md['transactions'].fillna(md['transactions'].mean())
 
     print(f"NULL(A):\n{md.isnull().sum()}")
 
