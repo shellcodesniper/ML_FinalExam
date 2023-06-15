@@ -17,7 +17,7 @@ def replace_string(datas):
   datas = datas.fillna('Nan').apply(lambda x : unique_dict[x])
   return datas.copy()
 
-class _Loaders:
+class Loaders:
   def __init__(self, IS_TRAIN=True):
     self.base = pd.read_csv(os.path.join(BASE_PATH, 'test.csv')) if not IS_TRAIN else pd.read_csv(os.path.join(BASE_PATH, 'train.csv'))
     self.merged_path = os.path.join(BASE_PATH, 'merged.pkl') if not IS_TRAIN else os.path.join(BASE_PATH, 'merged_train.pkl')
@@ -155,11 +155,3 @@ class _Loaders:
       train_set,
       label=predict_label
     )
-
-
-
-
-
-
-
-Loader = _Loaders()

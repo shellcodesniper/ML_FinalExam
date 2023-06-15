@@ -7,6 +7,30 @@ from tensorflow_decision_forests.keras import Task
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 
+
+es = tf.keras.callbacks.EarlyStopping(
+  monitor='loss', verbose=1, mode='auto',
+  baseline=None, restore_best_weights=True, patience=12
+)
+mc = tf.keras.callbacks.ModelCheckpoint(
+  filepath='datas/ckp.keras',  save_best_only=True
+)
+
+rlr = tf.keras.callbacks.ReduceLROnPlateau(
+  monitor='loss', factor=0.1, patience=10, verbose=2,
+  mode='auto'
+)
+csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
+
+# HACK : Callback Functions
+
+
+
+
+
+
+
+
 class TSBaseModel(keras.Model):
   def __init__(self, **kwargs):
     super(TSBaseModel, self).__init__(**kwargs)
@@ -50,5 +74,9 @@ def randomForstRegressionModel(seed):
     num_trees=10,
     num_threads=4,
     max_depth=10,
+  )
+  model.compile(
+    metrics=["mse", "mae", "rmse"]
+
   )
   return model
