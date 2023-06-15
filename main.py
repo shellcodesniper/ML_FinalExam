@@ -86,9 +86,7 @@ def main():
 
   # TODO : Training
   predict_y_GBT = model_GBT.predict(predict_x)
-  predict_y_GBT = np.ravel(predict_y_GBT,  order = 'C')
   predict_y_RFR = model_RFR.predict(predict_x)
-  predict_y_RFR = np.ravel(predict_y_RFR,  order = 'C')
 
   restored_x = x_scaler.inverse_transform(predict_x)
 
