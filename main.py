@@ -29,7 +29,6 @@ def main():
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
   predict_loader = Loaders(False)
-  predict_scaler = predict_loader.get_scaler()
 
   (predict_x, _)= predict_loader.as_raw_set()
   (x_test, y_test) = Loaders(True).get_validation_set() # TYPE : Train Dataset Generator
@@ -75,8 +74,8 @@ def main():
   restored_x = predict_x
   # restored_x = predict_scaler.inverse_transform(predict_x)
 
-  restored_y_GBT = predict_scaler.inverse_transform(predict_y_GBT)
-  restored_y_RFR = predict_scaler.inverse_transform(predict_y_RFR)
+  restored_y_GBT = predict_y_GBT
+  restored_y_RFR = predict_y_RFR
 
   result_list = []
 
