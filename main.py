@@ -27,7 +27,10 @@ def main():
 
   model_RFR = Model.randomForstRegressionModel(tree_seed)
 
-  (predict_x, _)= Loaders(False).as_raw_set()
+  predict_loader = Loaders(False)
+  predict_scaler = predict_loader.get_scaler()
+
+  (predict_x, _)= predict_loader.as_raw_set()
   train_generator = Loaders(True).as_generator(batch_size=100000, shuffle=True) # TYPE : Train Dataset Generator
   (x_test, y_test) = Loaders(True).get_validation_set() # TYPE : Train Dataset Generator
 
@@ -50,11 +53,23 @@ def main():
     print(f"Result RFR : {result_RFR}")
     print("=====================================")
 
-    predict_y_GBT = model_GBT.predict(predict_x)
-    predict_y_RFR = model_RFR.predict(predict_x)
+  # NOTE : Train All Data (Epoch 1)
+  (x_train, y_train) = Loaders(True).as_raw_set()
+  model_GBT.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('gbt'))
+  model_RFR.fit(x_train, y_train, verbose=0, callbacks=Model.get_callback('rfr'))
 
-    print (predict_y_GBT)
-    print (predict_y_RFR)
+
+  predict_y_GBT = model_GBT.predict(predict_x)
+  predict_y_RFR = model_RFR.predict(predict_x)
+  restored_y_GBT = predict_scaler.inverse_transform(predict_y_GBT)
+  restored_y_RFR = predict_scaler.inverse_transform(predict_y_RFR)
+
+  result_list = []
+  for i in range(len(predict_y_GBT)):
+    idx = predict_x[i][0][0]
+    data = restored_y_GBT[i][0]
+
+    print (idx, data)
 
 
 

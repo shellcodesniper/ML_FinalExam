@@ -29,6 +29,8 @@ class Loaders:
       with_mean=True,
       copy=True
     )
+  def get_scaler(self):
+    return self.scaler
 
   def get_merged(self):
     if os.path.exists(self.merged_path):
