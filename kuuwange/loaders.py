@@ -118,6 +118,7 @@ class Loaders:
 
     x_train = pd.DataFrame()
     y_train = pd.DataFrame()
+
     if (self.is_train):
       x_train = pre_processed.drop(['sales'], axis=1) # TYPE : Drop Just sales
       y_train = pre_processed[['sales']] # TYPE : 2-D Required.
@@ -126,7 +127,8 @@ class Loaders:
       y_train = pd.DataFrame(np.zeros((len(x_train), 1)))
 
     print ("============ X, Y ===============")
-    print ("X[0]:", x_train[0], x_train.shape,"\nY[0]:", y_train[0], y_train.shape)
+    print ("X[0]:", x_train[0], x_train.shape)
+    print ("Y[0]:", y_train[0], y_train.shape)
     print ("===========================")
 
     # NOTE : Scaling
