@@ -19,8 +19,10 @@ def replace_string(datas):
 
 class Loaders:
   def __init__(self, IS_TRAIN=True):
+    print (f'[Loader] : {"TRAIN" if IS_TRAIN else "TEST"}')
     self.base = pd.read_csv(os.path.join(BASE_PATH, 'test.csv')) if not IS_TRAIN else pd.read_csv(os.path.join(BASE_PATH, 'train.csv'))
     self.merged_path = os.path.join(BASE_PATH, 'merged.pkl') if not IS_TRAIN else os.path.join(BASE_PATH, 'merged_train.pkl')
+    self.is_train = IS_TRAIN
 
     self.scaler = StandardScaler(
       with_std=True,
@@ -67,6 +69,7 @@ class Loaders:
     # TODO : transactions -> 거래량 추론
     md['transactions'] = md.groupby(['store_nbr','holiday_type'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 같은 상점의 holiday_type 이 같은경우를 평균을 내서 채움.
     md['transactions'] = md.groupby(['store_nbr'])['transactions'].transform(lambda x: x.fillna(x.mean())) # NOTE : 그 외값은, 같은 상점의 평균으로 채움.
+    md['transactions'] = md['transactions'].fillna(method='bfill') # NOTE : 그 외값은, 같은 상점의 평균으로 채움.
 
     print(f"NULL(A):\n{md.isnull().sum()}")
 
@@ -82,11 +85,20 @@ class Loaders:
 
   def as_raw_set(self):
     pre_processed = self.get_merged()
+    print(f"[결측치({'TRAIN' if self.is_train else 'TEST'})]")
+    print(pre_processed.isnull().sum())
+    print("---------------------------")
     pre_processed = pre_processed.reset_index().set_index('id')
     pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
 
-    x_train = pre_processed.drop(['sales'], axis=1) # TYPE : Drop Just sales
-    y_train = pre_processed[['sales']] # TYPE : 2-D Required.
+    x_train = pd.DataFrame()
+    y_train = pd.DataFrame()
+    if (self.is_train):
+      x_train = pre_processed.drop(['sales'], axis=1) # TYPE : Drop Just sales
+      y_train = pre_processed[['sales']] # TYPE : 2-D Required.
+    else:
+      x_train = pre_processed.copy()
+      y_train = pd.DataFrame(np.zeros((len(x_train), 1)))
 
     # NOTE : Scaling
     x_train = self.scaler.fit_transform(x_train)

@@ -62,14 +62,17 @@ class TSBaseModel(keras.Model):
     return self.outputL(x)
 
 def gradientBoostingModel(seed):
-  model_GBT = tfdf.keras.GradientBoostedTreesModel(
+  model = tfdf.keras.GradientBoostedTreesModel(
     task=Task.REGRESSION,
     random_seed=seed,
     num_trees=10,
     num_threads=4,
     max_depth=10,
   )
-  return model_GBT
+  model.compile(
+    metrics=["mse", "mae"],
+  )
+  return model
 
 def randomForstRegressionModel(seed):
   model = tfdf.keras.RandomForestModel(
@@ -80,7 +83,7 @@ def randomForstRegressionModel(seed):
     max_depth=10,
   )
   model.compile(
-    metrics=["mse", "mae", "rmse"]
+    metrics=["mse", "mae"]
 
   )
   return model
