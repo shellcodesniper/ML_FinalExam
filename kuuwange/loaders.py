@@ -5,6 +5,7 @@ import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import KNNImputer
 import matplotlib.pyplot as plt
+import tensorflow_decision_forests as tfdf
 BASE_PATH = 'datas/'
 
 # TODO : Nan Value 채우고(해야함?), 학습 가능하도록 string -> numeric 변환.
@@ -19,6 +20,12 @@ def replace_string(datas):
 class _Loaders:
   def __init__(self):
     self.test = pd.read_csv(os.path.join(BASE_PATH, 'test.csv'))
+    self.scaler = StandardScaler(
+      with_std=True,
+      with_mean=True,
+      copy=True
+    )
+
 
   def get_test(self):
     return self.test
@@ -74,7 +81,7 @@ class _Loaders:
 
     return md 
 
-  def get_trainset(self):
+  def as_raw_set(self):
     pre_processed = self.get_merged()
 
 
@@ -82,15 +89,9 @@ class _Loaders:
     # pre_processed['dcoilwtico'] = pre_processed['dcoilwtico'].str.replace(',', '').astype(float)
 
 
-    scaler = StandardScaler(
-      with_std=True,
-      with_mean=True,
-      copy=True
-    )
-
     x_train = pre_processed.drop(['sales', 'state', 'description', 'transferred'], axis=1)
     y_train = pre_processed[['sales']] # TYPE : 2-D Required.
-    print (x_train.head())
+    # print (x_train.head())
 
     # x_train = x_train.to_numpy()
     # y_train = y_train.to_numpy()
@@ -98,17 +99,40 @@ class _Loaders:
 
     # NOTE : Scaling
 
-    x_train = scaler.fit_transform(x_train)
-    y_train = scaler.fit_transform(y_train)
+    x_train = self.scaler.fit_transform(x_train)
+    y_train = self.scaler.fit_transform(y_train)
 
-    print (x_train.shape, y_train.shape)
+    # print (x_train.shape, y_train.shape)
 
-    y_train = y_train.reshape((-1,1))
+    # y_train = y_train.reshape((-1,1))
 
 
+    return (x_train, y_train)
+
+  def as_dataset(self):
+    (x_train, y_train) = self.as_raw_set()
     dataset = tf.data.Dataset.from_tensors((x_train, y_train))
 
     return dataset
+  
+  def get_sample(self):
+    (x_train, y_train) = self.as_raw_set()
+    return (x_train[0], y_train[0])
+
+  def as_randomforest_dataset(self):
+    pre_processed = self.get_merged()
+    pre_processed['date'] = pre_processed['date'].str.replace('-', '').astype(int)
+
+    predict_label = 'sales'
+
+    train_set = pre_processed 
+
+    pre_processed['sales'] = self.scaler.fit_transform(pre_processed['sales']) # NOTE: Scaling
+    return tfdf.keras.pd_dataframe_to_tf_dataset(
+      train_set,
+      label=predict_label
+    )
+
 
 
 

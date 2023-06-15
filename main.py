@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow_decision_forests.keras import Task
 tf.config.set_soft_device_placement(True)
 # tf.debugging.set_log_device_placement(True)
 # SET GPU
@@ -13,6 +14,11 @@ if gpus:
 import kuuwange.models as Model
 import kuuwange as MY
 from kuuwange.loaders import Loader
+import math
+import numpy as np
+import tensorflow_decision_forests as tfdf
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 
 es = tf.keras.callbacks.EarlyStopping(
   monitor='loss', verbose=1, mode='auto',
@@ -33,20 +39,38 @@ csv_logger = tf.keras.callbacks.CSVLogger('datas/training.log')
 
 def main():
 
-  train_dataset = Loader.get_trainset()
+  # train_dataset = Loader.as_randomforest_dataset()
 
   # NOTE : Model
-  model = Model.TSBaseModel()
+  # model = Model.RandomForestModel()
+  
 
-  model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
-    loss=tf.keras.losses.MeanSquaredError(),
-    metrics=['mse', 'mae'],
-  )
+  
+  model = tfdf.keras.GradientBoostedTreesModel(
+    task=Task.REGRESSION,
+    num_trees=50)
 
-  model.build(input_shape=(None, 13))
+  (x_data, y_data) = Loader.as_raw_set()
+  x_train = x_data[:10000]
+  y_train = np.ravel(y_data[:10000],  order = 'C')
 
-  model.summary()
+  model.fit(x_train, y_train, verbose=2)
+
+  # kfold = KFold(n_splits=10)
+
+
+  # cv_results = cross_val_score(model, x_pred, y_pred, scoring="neg_mean_squared_error", cv=10)
+
+
+  # model.compile(
+  #   # optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
+  #   # loss=tf.keras.losses.MeanSquaredError(),
+  #   metrics=['mse', 'mae'],
+  # )
+
+  # model.build(input_shape=(None, 13))
+  #
+  # model.summary()
 
 
   for _i in range(int(3054348 / 250)):

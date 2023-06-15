@@ -29,16 +29,4 @@ class TSBaseModel(keras.Model):
 
     return self.outputL(x)
 
-
-class RandomForestModel(tfdf.keras.RandomForestModel):
-  def __init__(self, **kwargs):
-    super(RandomForestModel, self).__init__(**kwargs)
-    self.input_layer = layers.InputLayer(input_shape=(None,13))
-    self.outputL = layers.Dense(1)
-
-  def call(self, inputs, training=False):
-    x = self.input_layer(inputs)
-    # NOTE : demansion epand
-    x = tf.expand_dims(x, axis=0)
-    x = super(RandomForestModel, self).call(x)
-    return self.outputL(x)
+RandomForestModel = tfdf.keras.RandomForestModel()
