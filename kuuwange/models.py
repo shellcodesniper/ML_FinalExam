@@ -33,7 +33,7 @@ def get_callback(name):
 
 # TODO : Concat Models into One
 
-def concatModel(tree_seed, input_shape=(14,)):
+def concatModel(tree_seed, input_shape=(16,)):
   Model_GBT = gradientBoostingModel(tree_seed)
   Model_RFR = randomForstRegressionModel(tree_seed)
   Model_rs = RegressionModel(input_shape=(input_shape[0]+2,))
